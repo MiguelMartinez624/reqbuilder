@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 )
 
 type HeadersMap map[string]string
@@ -46,27 +47,24 @@ func (r Request) QueryParam(key, value string) Request {
 	return Request{requestConfiguration: r.requestConfiguration}
 }
 
-// Post generate a post request
-func (r Request) Post() PostRequest {
-	r.requestConfiguration.Method = http.MethodPost
-	return PostRequest{
-		requestConfiguration: r.requestConfiguration,
+func (r Request) generateEndpoint() string {
+	rawPath := r.requestConfiguration.Endpoint
+	var endpoint string
+	for paramKey, paramValue := range r.requestConfiguration.QueryParams {
+		endpoint = strings.Replace(rawPath, fmt.Sprintf(":%v", paramKey), paramValue, 1)
+	}
+
+	return endpoint
+
+}
+
+func (r Request) appendRequestHeaders(req *http.Request) {
+	headers := r.requestConfiguration.Headers
+	for key, value := range headers {
+		req.Header.Set(key, value)
 	}
 }
 
-func (r Request) Delete() DeleteRequest {
-	r.requestConfiguration.Method = http.MethodDelete
-	return DeleteRequest{
-		requestConfiguration: r.requestConfiguration,
-	}
-}
-
-func (r Request) Get() GetRequest {
-	r.requestConfiguration.Method = http.MethodGet
-	return GetRequest{
-		requestConfiguration: r.requestConfiguration,
-	}
-}
 func NewRequest(route string) Request {
 	return Request{
 		RequestConfiguration{

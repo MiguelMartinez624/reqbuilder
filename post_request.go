@@ -3,10 +3,10 @@ package reqbuilder
 import (
 	"bytes"
 	"net/http"
-	"strings"
 )
 
 type PostRequest struct {
+	*Request
 	requestConfiguration RequestConfiguration
 	body                 *bytes.Reader
 }
@@ -20,20 +20,13 @@ func (pr PostRequest) Build() (*http.Request, error) {
 	reqBuilder := pr.requestConfiguration.ReqBuilder
 	method := pr.requestConfiguration.Method
 
-	rawPath := pr.requestConfiguration.Endpoint
-	var endpoint string
-	for paramKey, paramValue := range pr.requestConfiguration.QueryParams {
-		endpoint = strings.Replace(rawPath, paramKey, paramValue, 1)
-	}
+	endpoint := pr.generateEndpoint()
 
 	req, err := reqBuilder(method, endpoint, pr.body)
 	if err != nil {
 		return nil, err
 	}
-	headers := pr.requestConfiguration.Headers
-	for key, value := range headers {
-		req.Header.Set(key, value)
-	}
+	pr.appendRequestHeaders(req)
 
 	return req, nil
 }
