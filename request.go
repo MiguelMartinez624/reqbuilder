@@ -38,6 +38,8 @@ func (r Request) WithHeader(key, value string) Request {
 	return Request{requestConfiguration: r.requestConfiguration}
 }
 
+// QueryParam add a headers to the request configuration, will panic if
+// the key already exist on the headers
 func (r Request) QueryParam(key, value string) Request {
 	if _, ok := r.requestConfiguration.QueryParams[key]; ok {
 		panic(fmt.Sprintf("cannot use key %v already exist on headers map", key))
