@@ -108,3 +108,43 @@ func TestRequest_WithHeader(t *testing.T) {
 		})
 	}
 }
+
+func TestRequest_generateEndpoint(t *testing.T) {
+	type fields struct {
+		requestConfiguration RequestConfiguration
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   string
+	}{
+		{
+			name: "should build url if there is not query params",
+			fields: fields{
+				requestConfiguration: RequestConfiguration{
+					Endpoint:    "api/test",
+					QueryParams: map[string]string{}},
+			},
+			want: "api/test",
+		},
+		{
+			name: "should replace params on path with the values on QueryParam map",
+			fields: fields{
+				requestConfiguration: RequestConfiguration{
+					Endpoint:    "api/:param1/test/:param2",
+					QueryParams: map[string]string{"param1": "123", "param2": "success"}},
+			},
+			want: "api/123/test/success",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r := Request{
+				requestConfiguration: tt.fields.requestConfiguration,
+			}
+			if got := r.generateEndpoint(); got != tt.want {
+				t.Errorf("generateEndpoint() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

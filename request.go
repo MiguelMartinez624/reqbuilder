@@ -50,10 +50,10 @@ func (r Request) QueryParam(key, value string) Request {
 }
 
 func (r Request) generateEndpoint() string {
-	rawPath := r.requestConfiguration.Endpoint
-	var endpoint string
+	endpoint := r.requestConfiguration.Endpoint
+
 	for paramKey, paramValue := range r.requestConfiguration.QueryParams {
-		endpoint = strings.Replace(rawPath, fmt.Sprintf(":%v", paramKey), paramValue, 1)
+		endpoint = strings.Replace(endpoint, fmt.Sprintf(":%v", paramKey), paramValue, 1)
 	}
 
 	return endpoint
